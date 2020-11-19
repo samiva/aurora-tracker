@@ -1,6 +1,7 @@
 var express   = require('express');
+const VisibilityModel = require('../models/VisibilityModel.js');
 var router    = express.Router();
-var UserModel = require('../models/signalModel.js');
+var VisibiltyModel = require('../models/VisibilityModel.js');
 
 router.get('/test', function (req, res) {
     res.json({
@@ -9,7 +10,7 @@ router.get('/test', function (req, res) {
 });
 
 router.post('/',function(req,res){
-    var User = new UserModel()
+    var User = new VisibiltyModel()
 
     User.index = req.body.index;
     User.signal = req.body.signal;
@@ -32,17 +33,55 @@ router.post('/',function(req,res){
     });
 });
 
+router.get('/auroras/:location', function (req, res) {
+    var loc = req.params.location;
+    console.log("location:", loc);
+    VisibilityModel.findOne({location:loc}, function(err, visibility){
+        if(err){
+            console.log("failed for", loc);
+            res.json({messeage:"Failed"})
+        }
+        console.log("No error:", visibility);
+        res.json({visibility});
+    });
+});
+
+router.get('/auroras', function(req,res){
+    console.log("Auroras");
+    console.log("Auroras ", req.query.location);
+});
+
+router.get('/add_device/:location', function(req,res){
+    var loc = req.params.location;
+    VisibilityModel.countDocuments({location:loc}, function(err,count) {
+        console.log("count:",count);
+        if(count<1) {
+            var visibility = new VisibilityModel();
+            visibility.location=loc;
+            visibility.timestamp = Date.now().toString();
+            visibility.save(function(err) {
+                if(err){
+                    res.send(err);
+                } else {
+                    res.json({message:"success"});
+                }
+            });                        
+        }
+    })
+});
+
 router.get('/', function (req, res) {
-    UserModel
-        .find()
-        .then(function (users) {
-            res.json(users);
-        });
+    // VisibiltyModel
+    //     .find()
+    //     .then(function (users) {
+    //         res.json(users);
+    //     });
+    console.log("Hello");
 });
 
 router.get('/:index', function (req, res) {
     var Userindex = req.params.index;
-    UserModel
+    VisibiltyModel
         .findOne({index: Userindex},function (err,user) {
             res.json(user);
         });
@@ -50,7 +89,7 @@ router.get('/:index', function (req, res) {
 
 router.get('/ota/:ota', function (req, res) {
     var Userindex = req.params.ota;
-    UserModel
+    VisibiltyModel
         .find({ota: Userindex},function (err,users) {
             res.json(users);
         });
@@ -62,7 +101,7 @@ router.get('/:index/changesignal/:signal', function (req, res) {
     var Userid = req.params.index;
     var Usersignal = req.params.signal;
 
-    UserModel
+    VisibiltyModel
     .findOne({index: Userid}, function(err, user) {
         if (err) {
             res.send(err);
@@ -85,7 +124,7 @@ router.get('/:index/changesignal/:signal', function (req, res) {
 router.get('/:index/onair', function (req, res) {
     var Userid = req.params.index;
 
-    UserModel
+    VisibiltyModel
     .findOne({index: Userid}, function(err, user) {
         if (err) {
             res.send(err);
@@ -109,7 +148,7 @@ router.get('/:index/power/:power', function (req, res) {
     var Userid1 = req.params.index;
     var Userid2 = req.params.power;
 
-    UserModel
+    VisibiltyModel
     .findOne({index: Userid1}, function(err, user) {
         if (err) {
             res.send(err);
@@ -131,7 +170,7 @@ router.get('/:index/power/:power', function (req, res) {
 
 router.delete('/:index',function(req,res){
     var Userid = req.params.index;
-    UserModel.deleteOne({index: Userid})
+    VisibiltyModel.deleteOne({index: Userid})
         .then(function(){
             res.json({message:'Success!!'});
         });
@@ -139,7 +178,7 @@ router.delete('/:index',function(req,res){
 
 router.delete('/id/:_id',function(req,res){
     var Userid = req.params._id;
-    UserModel.deleteOne({_id: Userid})
+    VisibiltyModel.deleteOne({_id: Userid})
         .then(function(){
             res.json({message:'Success!!'});
         });
@@ -149,7 +188,7 @@ router.put('/:index',function (req, res) {
 
     var Userid = req.params.index;
 
-    UserModel
+    VisibiltyModel
         .findOne({index: Userid}, function(err, user) {
             if (err) {
                 res.send(err);
