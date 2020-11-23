@@ -36,19 +36,26 @@ router.post('/',function(req,res){
 router.get('/auroras/:location', function (req, res) {
     var loc = req.params.location;
     console.log("location:", loc);
-    VisibilityModel.findOne({location:loc}, function(err, visibility){
+    VisibilityModel.
+	findOne({location:loc}, function(err, visibility){
         if(err){
             console.log("failed for", loc);
             res.json({messeage:"Failed"})
         }
         console.log("No error:", visibility);
-        res.json({visibility});
+        res.json(visibility);
     });
 });
 
 router.get('/auroras', function(req,res){
-    console.log("Auroras");
-    console.log("Auroras ", req.query.location);
+    VisibilityModel
+	.find()
+	.then(function (users) {
+		res.json(users);
+	});
+
+//    console.log("Auroras");
+//    console.log("Auroras ", req.query.location);
 });
 
 router.get('/add_device/:location', function(req,res){
@@ -97,12 +104,12 @@ router.get('/ota/:ota', function (req, res) {
 
 
 
-router.get('/:index/changesignal/:signal', function (req, res) {
-    var Userid = req.params.index;
+router.get('/auroras/:location/changesignal/:signal', function (req, res) {
+    var Userid = req.params.location;
     var Usersignal = req.params.signal;
 
     VisibiltyModel
-    .findOne({index: Userid}, function(err, user) {
+    .findOne({location: Userid}, function(err, user) {
         if (err) {
             res.send(err);
         } else {
@@ -194,16 +201,10 @@ router.put('/:index',function (req, res) {
                 res.send(err);
             } else {
 
-                //user.index = req.body.index;
-
-                user.door = req.body.door;
-                user.ota =  req.body.ota;
+                user.signal = req.body.signal;
                 user.location =  req.body.location;
-                user.group =  req.body.group;
-                user.ipaddress =  req.body.ipaddress;
-                user.power =  req.body.power;
-                
-                user.save(function(err) {
+
+            user.save(function(err) {
                     if (err){
                         res.send(err);
                     } else {

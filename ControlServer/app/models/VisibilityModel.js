@@ -5,6 +5,7 @@ var Schema       = mongoose.Schema; //
 var VisibilitySchema   = new Schema({
     visibility: Number,
     location: String,
+    signal: String,
     timestamp: String
 });
 
