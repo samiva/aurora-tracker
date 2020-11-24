@@ -3,6 +3,8 @@ const VisibilityModel = require('../models/VisibilityModel.js');
 var router    = express.Router();
 var VisibiltyModel = require('../models/VisibilityModel.js');
 
+const RequestIp = require('@supercharge/request-ip')
+
 router.get('/test', function (req, res) {
     res.json({
         message:"This is api test"
@@ -31,6 +33,17 @@ router.post('/',function(req,res){
             res.json({ message: 'Success!!' });
         }
     });
+});
+const expressMiddleware = function(req, res, next) {
+    req.ip = RequestIp.getClientIp(req);
+    console.log('middleware:',req.ip);
+    next();
+}
+router.use(expressMiddleware);
+
+router.get('/device', function(req, res) {
+    
+    res.json({'ip' : req.ip});
 });
 
 router.get('/auroras/:location', function (req, res) {
