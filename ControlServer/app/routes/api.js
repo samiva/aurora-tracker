@@ -42,8 +42,9 @@ const expressMiddleware = function(req, res, next) {
 router.use(expressMiddleware);
 
 router.get('/device', function(req, res) {
-    
-    res.json({'ip' : req.ip});
+    var ipAddr = req.ip.toString();
+    ipAddr = ipAddr.substr(ipAddr.lastIndexOf(':')+1); 
+    res.json({'ip' : ipAddr});
 });
 
 router.get('/auroras/:location', function (req, res) {
