@@ -2,7 +2,6 @@ var express   = require('express');
 const VisibilityModel = require('../models/VisibilityModel.js');
 var router    = express.Router();
 var VisibiltyModel = require('../models/VisibilityModel.js');
-const RequestIp = require('@supercharge/request-ip')
 
 router.get('/test', function (req, res) {
     res.json({
@@ -27,82 +26,28 @@ router.post('/',function(req,res){
         if (err){
             
             res.send(err);
-        } else {
-           
+        } else 
             res.json({ message: 'Success!!' });
         }
-    });
-});
-const expressMiddleware = function(req, res, next) {
-    req.ip = RequestIp.getClientIp(req);
-    console.log('middleware:',req.ip);
-    next();
-}
-router.use(expressMiddleware);
-
-
-/*router.get('/device', function(req, res) {
-    var ipAddr = req.ip.toString();
-    ipAddr = ipAddr.substr(ipAddr.lastIndexOf(':')+1);    
-    res.json(ipAddr);
-})
-*/
-router.get('/device', function(req, res) {
-    var ipAddr = req.ip.toString();
-    ipAddr = ipAddr.substr(ipAddr.lastIndexOf(':')+1);
-    
-    const { spawn } = require('child_process'); 
-    const toolParams = JSON.stringify(params);
-	console.log('spawn child process');
-    const pythonProcess = spawn('python3', [__dirname + '/updateAurora_IPbased.py', ipAddr]); 
-    const stdout = [];
-    const stderr = [];
-    console.log('Call python');
-
-    pythonProcess.stdout.on('data', data => { stdout.push(data.toString()) }); 
-    pythonProcess.stderr.on('data', data => { stderr.push(data.toString()) });
-    pythonProcess.on('close', (code) => { 
-   	if (code !== 0) { 
-    		const errorMessage = stderr.join(''); 
-    		res.end(errorMessage); 
-  	} 
-  
-  	const pythonResult = JSON.parse(stdout.join(''));
-    	// Exploit pythonResult 
-	res.json(pythonResult);
-    });
-
-})
-
-router.get('/test', function (req, res) {
-    res.json({
-        message:"This is api test"
     });
 });
 
 router.get('/auroras/:location', function (req, res) {
     var loc = req.params.location;
     console.log("location:", loc);
-    VisibilityModel.
-	findOne({location:loc}, function(err, visibility){
+    VisibilityModel.findOne({location:loc}, function(err, visibility){
         if(err){
             console.log("failed for", loc);
             res.json({messeage:"Failed"})
         }
         console.log("No error:", visibility);
-        res.json(visibility);
+        res.json({visibility});
     });
 });
 
 router.get('/auroras', function(req,res){
-    VisibilityModel
-	.find()
-	.then(function (users) {
-		res.json(users);
-	});
-
-//    console.log("Auroras");
-//    console.log("Auroras ", req.query.location);
+    console.log("Auroras");
+    console.log("Auroras ", req.query.location);
 });
 
 router.get('/add_device/:location', function(req,res){
@@ -151,12 +96,12 @@ router.get('/ota/:ota', function (req, res) {
 
 
 
-router.get('/auroras/:location/changesignal/:signal', function (req, res) {
-    var Userid = req.params.location;
+router.get('/:index/changesignal/:signal', function (req, res) {
+    var Userid = req.params.index;
     var Usersignal = req.params.signal;
 
     VisibiltyModel
-    .findOne({location: Userid}, function(err, user) {
+    .findOne({index: Userid}, function(err, user) {
         if (err) {
             res.send(err);
         } else {

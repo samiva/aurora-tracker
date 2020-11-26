@@ -1,0 +1,11 @@
+Express API Server running!
+connected to mongodb://localhost:27017/iot
+[
+  {
+    name: 'aurora-tracker-dev',
+    type: 'collection',
+    options: {},
+    info: { readOnly: false, uuid: [Binary] },
+    idIndex: { v: 2, key: [Object], name: '_id_' }
+  }
+]
