@@ -52,7 +52,7 @@ router.get('/device', function(req, res) {
     ipAddr = ipAddr.substr(ipAddr.lastIndexOf(':')+1);
     
     const { spawn } = require('child_process'); 
-    const toolParams = JSON.stringify(params);
+    //const toolParams = JSON.stringify(params);
 	console.log('spawn child process');
     const pythonProcess = spawn('python3', [__dirname + '/updateAurora_IPbased.py', ipAddr]); 
     const stdout = [];
