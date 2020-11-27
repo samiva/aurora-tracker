@@ -47,13 +47,18 @@ router.use(expressMiddleware);
     res.json(ipAddr);
 })
 */
+// Phong: main python loop to update geomagnetic information every 30s
+//
 router.get('/device', function(req, res) {
     var ipAddr = req.ip.toString();
     ipAddr = ipAddr.substr(ipAddr.lastIndexOf(':')+1);
-    
+    console.log('ipAddr' + ipAddr);
     const { spawn } = require('child_process'); 
     //const toolParams = JSON.stringify(params);
-	console.log('spawn child process');
+    console.log('spawn child process');
+    // TODO: connect to MongoDB using IP address - Sami
+	// Update aurora status for current city
+	// Or create a new city
     const pythonProcess = spawn('python3', [__dirname + '/updateAurora_IPbased.py', ipAddr]); 
     const stdout = [];
     const stderr = [];
@@ -66,13 +71,65 @@ router.get('/device', function(req, res) {
     		const errorMessage = stderr.join(''); 
     		res.end(errorMessage); 
   	} 
-  
-  	const pythonResult = JSON.parse(stdout.join(''));
+        
+  	const pythonResult = JSON.parse(stdout.toString());
     	// Exploit pythonResult 
-	res.json(pythonResult);
+	console.log(pythonResult.city);
+	console.log(pythonResult.color);
+	//res.json(pythonResult)
+	
+    });
+    var User_city = pythonResult.city;
+    var Usersignal = pythonResult.color;
+
+    VisibiltyModel.findOne({location: User_city}, function(err, user) {
+        if (err) {
+            res.send(err);
+        } else {
+            //Signal color update
+            user.signal = Usersignal;
+
+            user.save(function(err) {
+                if (err){
+                    res.send(err);
+                } else {
+                    res.json({ message: 'Change Success!'+ Userid + Usersignal + user });
+                }
+            });
+        }
+    });
+})
+
+router.get('/ipbased', function(req, res) {
+    var ipAddr = req.ip.toString();
+    ipAddr = ipAddr.substr(ipAddr.lastIndexOf(':')+1);
+    console.log('ipAddr' + ipAddr);
+    const { spawn } = require('child_process');
+    //const toolParams = JSON.stringify(params);
+        console.log('spawn child process');
+    const pythonProcess = spawn('python3', [__dirname + '/updateAurora_IPbased.py', ipAddr]);
+    const stdout = [];
+    const stderr = [];
+    console.log('Call python');
+
+    pythonProcess.stdout.on('data', data => { stdout.push(data.toString()) });
+    pythonProcess.stderr.on('data', data => { stderr.push(data.toString()) });
+    pythonProcess.on('close', (code) => {
+        if (code !== 0) {
+                const errorMessage = stderr.join('');
+                res.end(errorMessage);
+        }
+
+        const pythonResult = JSON.parse(stdout.toString());
+        // Exploit pythonResult
+        console.log(pythonResult.city);
+        console.log(pythonResult.color);
+        res.json(pythonResult)
+
     });
 
 })
+
 
 router.get('/test', function (req, res) {
     res.json({

@@ -3,7 +3,7 @@ var mongoose     = require('mongoose'); //mongoDB liburary
 var Schema       = mongoose.Schema; //
 
 var VisibilitySchema   = new Schema({
-    visibility: Number,
+    geomagnetic: Number,
     location: String,
     signal: String,
     timestamp: String

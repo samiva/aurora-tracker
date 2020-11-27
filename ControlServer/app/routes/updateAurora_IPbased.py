@@ -31,6 +31,7 @@ def getTime():
     return now.strftime("%d/%m/%Y %H:%M:%S")
 
 def AuroraStatus(ipaddress):
+    output = {}
     response = DbIpCity.get(ipaddress, api_key='free')
     #print(f'IP address: {response.ip_address}')
     #print(f'Lattitude: {response.latitude}')
@@ -57,8 +58,9 @@ def AuroraStatus(ipaddress):
                 data[key]['cloud'] = getCloudScore(cloud)
                 data[key]['aurora'] = getAuroraStatus(data[key]['magnetic'],data[key]['cloud'])
                 data[key]['time'] = getTime()
-                return data[key]['aurora']
-    
+                output['city'] = response.city
+                output['color'] = data[key]['aurora']
+
     # If there is no city in data.json then create a new one
     if found is False:
         mag_score = random.randint(1,3)
@@ -77,7 +79,8 @@ def AuroraStatus(ipaddress):
         json.dump(data, a_file)
         a_file.close()
 
-        return aurora_score
-
+        output['city'] = response.city
+        output['color'] = aurora_score
+    return json.dumps(output)
 print(AuroraStatus(client_IP))
 sys.stdout.flush()
