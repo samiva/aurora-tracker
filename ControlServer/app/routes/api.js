@@ -59,7 +59,7 @@ router.get('/device', function(req, res) {
     // TODO: connect to MongoDB using IP address - Sami
 	// Update aurora status for current city
 	// Or create a new city
-    const pythonProcess = spawn('python3', [__dirname + '/updateAurora_IPbased.py', ipAddr]); 
+    const pythonProcess = spawn('python', [__dirname + '/updateAurora_IPbased.py', ipAddr]); 
     const stdout = [];
     const stderr = [];
     console.log('Call python');
@@ -67,48 +67,56 @@ router.get('/device', function(req, res) {
     pythonProcess.stdout.on('data', data => { stdout.push(data.toString()) }); 
     pythonProcess.stderr.on('data', data => { stderr.push(data.toString()) });
     pythonProcess.on('close', (code) => { 
-   	if (code !== 0) { 
-    		const errorMessage = stderr.join(''); 
-    		res.end(errorMessage); 
-  	} 
-        
-  	const pythonResult = JSON.parse(stdout.toString());
-    	// Exploit pythonResult 
-	console.log(pythonResult.city);
-	console.log(pythonResult.color);
-	//res.json(pythonResult)
-	
-    });
-    var User_city = pythonResult.city;
-    var Usersignal = pythonResult.color;
+        if (code !== 0) { 
+                const errorMessage = stderr.join(''); 
+                res.end(errorMessage); 
+        } 
+        console.log("result:", stdout, stdout.length);
+        if(stdout.length===0) {
+            res.status(500).end();
+            
+        }else {
 
-    VisibiltyModel.findOne({location: User_city}, function(err, user) {
-        if (err) {
-            res.send(err);
-        } else {
-            //Signal color update
-            user.signal = Usersignal;
-
-            user.save(function(err) {
-                if (err){
+            
+            const pythonResult = JSON.parse(stdout.toString());
+            // Exploit pythonResult 
+            console.log(pythonResult.city);
+            console.log(pythonResult.color);
+            //res.json(pythonResult)
+            var User_city = pythonResult.city;
+            var Usersignal = pythonResult.color;
+            
+            VisibiltyModel.findOne({location: User_city}, function(err, user) {
+                if (err) {
                     res.send(err);
                 } else {
-                    res.json({ message: 'Change Success!'+ Userid + Usersignal + user });
+                    //Signal color update
+                    user.signal = Usersignal;
+                    
+                    user.save(function(err) {
+                        if (err){
+                            res.send(err);
+                        } else {
+                            res.json({ message: 'Change Success!'+ Userid + Usersignal + user });
+                        }
+                    });
                 }
             });
-        }
-    });
-})
-
-router.get('/ipbased', function(req, res) {
-    var ipAddr = req.ip.toString();
-    ipAddr = ipAddr.substr(ipAddr.lastIndexOf(':')+1);
-    console.log('ipAddr' + ipAddr);
-    const { spawn } = require('child_process');
-    //const toolParams = JSON.stringify(params);
+            
+        } 
+        });
+        
+    })
+    
+    router.get('/ipbased', function(req, res) {
+        var ipAddr = req.ip.toString();
+        ipAddr = ipAddr.substr(ipAddr.lastIndexOf(':')+1);
+        console.log('ipAddr' + ipAddr);
+        const { spawn } = require('child_process');
+        //const toolParams = JSON.stringify(params);
         console.log('spawn child process');
-    const pythonProcess = spawn('python3', [__dirname + '/updateAurora_IPbased.py', ipAddr]);
-    const stdout = [];
+        const pythonProcess = spawn('python3', [__dirname + '/updateAurora_IPbased.py', ipAddr]);
+        const stdout = [];
     const stderr = [];
     console.log('Call python');
 
