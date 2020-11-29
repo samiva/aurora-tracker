@@ -59,7 +59,7 @@ router.get('/device', function(req, res) {
     // TODO: connect to MongoDB using IP address - Sami
 	// Update aurora status for current city
 	// Or create a new city
-    const pythonProcess = spawn('python', [__dirname + '/updateAurora_IPbased.py', ipAddr]); 
+    const pythonProcess = spawn('python3', [__dirname + '/updateAurora_IPbased.py', ipAddr]); 
     const stdout = [];
     const stderr = [];
     console.log('Call python');

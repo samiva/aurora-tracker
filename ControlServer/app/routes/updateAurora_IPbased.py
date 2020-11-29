@@ -6,6 +6,7 @@ import json
 from ip2geotools.databases.noncommercial import DbIpCity
 from datetime import datetime
 import pyowm,random
+import pymongo
 import sys
 
 client_IP = sys.argv[1]
@@ -45,42 +46,55 @@ def AuroraStatus(ipaddress):
 
     cloud = Data.get_clouds() # get current cloud
     #print ("Cloud Coverage Percentage : ",cloud) # print cloud coverage percentage
+    magnetic = random.randint(1,3)
+    cloud_score = getCloudScore(cloud)
+    aurora_status = getAuroraStatus(magnetic, cloud_score)
+    time = getTime()
+    
+    client = MongoClient(port=27017)
+    db = client.iot
+    city_status = db['aurora-tracker-dev'].find_one({'city':response.city.lower()})
+    if(city_status==None):
+        print('Insert new city: {}'.format(response.city))
+        db['aurora-tracker-dev'].insert_one({'city':response.city.lower(), 'magnetic':magnetic, 'cloud':cloud_score, 'aurora':aurora_status, 'time':time})
+    else:
+        print("Update city status: {}".format(response.city))
+        db['aurora-tracker-dev'].update_one({'_id': city_status['_id']},{'$set': {'magnetic':magnetic, 'cloud':cloud_score, 'aurora':aurora_status, 'time':time}})
 
+    # # open data.json and update the current city 
+    # with open('data.json') as json_file:
+    #     data = json.load(json_file)
+    #     found = False
+    #     for key in data:
+    #         if key == response.city:
+    #             found = True
+    #             data[key]['magnetic'] = random.randint(1,3)
+    #             data[key]['cloud'] = getCloudScore(cloud)
+    #             data[key]['aurora'] = getAuroraStatus(data[key]['magnetic'],data[key]['cloud'])
+    #             data[key]['time'] = getTime()
+    #             output['city'] = response.city
+    #             output['color'] = data[key]['aurora']
 
-    # open data.json and update the current city 
-    with open('data.json') as json_file:
-        data = json.load(json_file)
-        found = False
-        for key in data:
-            if key == response.city:
-                found = True
-                data[key]['magnetic'] = random.randint(1,3)
-                data[key]['cloud'] = getCloudScore(cloud)
-                data[key]['aurora'] = getAuroraStatus(data[key]['magnetic'],data[key]['cloud'])
-                data[key]['time'] = getTime()
-                output['city'] = response.city
-                output['color'] = data[key]['aurora']
+    # # If there is no city in data.json then create a new one
+    # if found is False:
+    #     mag_score = random.randint(1,3)
+    #     cloud_score = getCloudScore(cloud)
+    #     aurora_score = getAuroraStatus(mag_score,cloud_score)
 
-    # If there is no city in data.json then create a new one
-    if found is False:
-        mag_score = random.randint(1,3)
-        cloud_score = getCloudScore(cloud)
-        aurora_score = getAuroraStatus(mag_score,cloud_score)
+    #     data[response.city] = {
+    #             'magnetic': mag_score,
+    #             'cloud': cloud_score,
+    #             'aurora': aurora_score,
+    #             'time': getTime()
+    #         }
 
-        data[response.city] = {
-                'magnetic': mag_score,
-                'cloud': cloud_score,
-                'aurora': aurora_score,
-                'time': getTime()
-            }
+    #     # Update data.json
+    #     a_file = open("data.json", "w")
+    #     json.dump(data, a_file)
+    #     a_file.close()
 
-        # Update data.json
-        a_file = open("data.json", "w")
-        json.dump(data, a_file)
-        a_file.close()
-
-        output['city'] = response.city
-        output['color'] = aurora_score
-    return json.dumps(output)
+    #     output['city'] = response.city
+    #     output['color'] = aurora_score
+    # return json.dumps(output)
 print(AuroraStatus(client_IP))
 sys.stdout.flush()
