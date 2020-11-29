@@ -82,11 +82,11 @@ router.get('/device', function(req, res) {
             // Exploit pythonResult 
             console.log(pythonResult.city);
             console.log(pythonResult.color);
-            //res.json(pythonResult)
+            res.json(pythonResult)
             var User_city = pythonResult.city;
             var Usersignal = pythonResult.color;
             
-            VisibiltyModel.findOne({location: User_city}, function(err, user) {
+            /*VisibiltyModel.findOne({location: User_city}, function(err, user) {
                 if (err) {
                     res.send(err);
                 } else {
@@ -101,7 +101,7 @@ router.get('/device', function(req, res) {
                         }
                     });
                 }
-            });
+            });*/
             
         } 
         });

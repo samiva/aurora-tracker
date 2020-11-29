@@ -6,7 +6,7 @@ import json
 from ip2geotools.databases.noncommercial import DbIpCity
 from datetime import datetime
 import pyowm,random
-import pymongo
+from pymongo import MongoClient
 import sys
 
 client_IP = sys.argv[1]
@@ -45,7 +45,7 @@ def AuroraStatus(ipaddress):
     Data=Weather.get_weather()                   # get out data in the mentioned location
 
     cloud = Data.get_clouds() # get current cloud
-    #print ("Cloud Coverage Percentage : ",cloud) # print cloud coverage percentage
+    #print ("Cloud Coverage Percentage : ",cloud) # arint cloud coverage percentage
     magnetic = random.randint(1,3)
     cloud_score = getCloudScore(cloud)
     aurora_status = getAuroraStatus(magnetic, cloud_score)
@@ -55,10 +55,10 @@ def AuroraStatus(ipaddress):
     db = client.iot
     city_status = db['aurora-tracker-dev'].find_one({'city':response.city.lower()})
     if(city_status==None):
-        print('Insert new city: {}'.format(response.city))
+#        print('Insert new city: {}'.format(response.city))
         db['aurora-tracker-dev'].insert_one({'city':response.city.lower(), 'magnetic':magnetic, 'cloud':cloud_score, 'aurora':aurora_status, 'time':time})
     else:
-        print("Update city status: {}".format(response.city))
+#        print("Update city status: {}".format(response.city))
         db['aurora-tracker-dev'].update_one({'_id': city_status['_id']},{'$set': {'magnetic':magnetic, 'cloud':cloud_score, 'aurora':aurora_status, 'time':time}})
 
     # # open data.json and update the current city 
