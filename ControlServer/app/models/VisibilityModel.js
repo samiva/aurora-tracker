@@ -3,10 +3,11 @@ var mongoose     = require('mongoose'); //mongoDB liburary
 var Schema       = mongoose.Schema; //
 
 var VisibilitySchema   = new Schema({
-    geomagnetic: Number,
-    location: String,
+    city: String,
+    magnetic: Number,
+    cloud: Number,
     signal: String,
-    timestamp: String
+    time: String
 });
 
 module.exports = mongoose.model('VisibilityModel', VisibilitySchema,'aurora-tracker-dev');

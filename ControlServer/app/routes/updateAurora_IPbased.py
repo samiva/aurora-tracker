@@ -42,10 +42,10 @@ def AuroraStatus(ipaddress):
 
     api_key = "92984517878f8b07e1cc4aa98152e803"
     OpenWMap=pyowm.OWM(api_key)                   # Use API key to get data
-    Weather=OpenWMap.weather_manager().weather_at_place(response.city)  # give where you need to see the weather
-    Data=Weather.weather                   # get out data in the mentioned location
+    Weather=OpenWMap.weather_at_place(response.city)  # give where you need to see the weather
+    Data=Weather.get_weather()                   # get out data in the mentioned location
 
-    cloud = Data.clouds # get current cloud
+    cloud = Data.get_clouds() # get current cloud
     #print ("Cloud Coverage Percentage : ",cloud) # arint cloud coverage percentage
     magnetic = random.randint(1,3)
     cloud_score = getCloudScore(cloud)
@@ -57,11 +57,11 @@ def AuroraStatus(ipaddress):
     city_status = db['aurora-tracker-dev'].find_one({'city':response.city.lower()})
     newCity = False
     if(city_status==None):
-        city_status = db['aurora-tracker-dev'].insert_one({'city':response.city.lower(), 'magnetic':magnetic, 'cloud':cloud_score, 'aurora':aurora_status, 'time':time})
+        city_status = db['aurora-tracker-dev'].insert_one({'city':response.city.lower(), 'magnetic':magnetic, 'cloud':cloud_score, 'signal':aurora_status, 'time':time})
         newCity = True
         # print('Insert new city: {}'.format(response.city))
     else:
-        city_status = db['aurora-tracker-dev'].update_one({'_id': city_status['_id']},{'$set': {'magnetic':magnetic, 'cloud':cloud_score, 'aurora':aurora_status, 'time':time}})
+        city_status = db['aurora-tracker-dev'].update_one({'_id': city_status['_id']},{'$set': {'magnetic':magnetic, 'cloud':cloud_score, 'signal':aurora_status, 'time':time}})
         # print("Update city status: {}".format(response.city))
 
     # # open data.json and update the current city 

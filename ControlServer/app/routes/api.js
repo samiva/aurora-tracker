@@ -146,10 +146,10 @@ router.get('/test', function (req, res) {
 });
 
 router.get('/auroras/:location', function (req, res) {
-    var loc = req.params.location;
+    var loc = req.params.location.toLowerCase();
     console.log("location:", loc);
     VisibilityModel.
-	findOne({location:loc}, function(err, visibility){
+	findOne({city:loc}, function(err, visibility){
         if(err){
             console.log("failed for", loc);
             res.json({messeage:"Failed"})
@@ -171,13 +171,13 @@ router.get('/auroras', function(req,res){
 });
 
 router.get('/add_device/:location', function(req,res){
-    var loc = req.params.location;
-    VisibilityModel.countDocuments({location:loc}, function(err,count) {
+    var loc = req.params.location.toLowerCase();
+    VisibilityModel.countDocuments({"city":loc}, function(err,count) {
         console.log("count:",count);
         if(count<1) {
             var visibility = new VisibilityModel();
-            visibility.location=loc;
-            visibility.timestamp = Date.now().toString();
+            visibility.city=loc;
+            visibility.time = Date.now().toString();
             visibility.save(function(err) {
                 if(err){
                     res.send(err);
@@ -217,15 +217,17 @@ router.get('/ota/:ota', function (req, res) {
 
 
 router.get('/auroras/:location/changesignal/:signal', function (req, res) {
-    var Userid = req.params.location;
+    var Userid = req.params.location.toLowerCase();
     var Usersignal = req.params.signal;
+	console.log(Userid)
 
-    VisibiltyModel
-    .findOne({location: Userid}, function(err, user) {
+    VisibilityModel
+    .findOne({"city": Userid}, function(err, user) {
         if (err) {
             res.send(err);
         } else {
             //Signal color update
+            console.log(user);
             user.signal = Usersignal;
     
             user.save(function(err) {
