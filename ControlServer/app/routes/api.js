@@ -62,7 +62,7 @@ router.get('/device', function(req, res) {
     const pythonProcess = spawn('python3', [__dirname + '/updateAurora_IPbased.py', ipAddr]); 
     const stdout = [];
     const stderr = [];
-    console.log('Call python');
+    console.log('Call python2');
 
     pythonProcess.stdout.on('data', data => { stdout.push(data.toString()) }); 
     pythonProcess.stderr.on('data', data => { stderr.push(data.toString()) });
@@ -115,10 +115,11 @@ router.get('/device', function(req, res) {
         const { spawn } = require('child_process');
         //const toolParams = JSON.stringify(params);
         console.log('spawn child process');
+	console.log("ipbased")
         const pythonProcess = spawn('python3', [__dirname + '/updateAurora_IPbased.py', ipAddr]);
         const stdout = [];
     const stderr = [];
-    console.log('Call python');
+    console.log('Call python10');
 
     pythonProcess.stdout.on('data', data => { stdout.push(data.toString()) });
     pythonProcess.stderr.on('data', data => { stderr.push(data.toString()) });
